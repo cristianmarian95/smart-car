@@ -106,6 +106,6 @@ void getBackDistance(){
   delayMicroseconds(10);
   digitalWrite(trigPin2, LOW);
   duration2 = pulseIn(echoPin2, HIGH);
-  distance2 = duration*0.034/2;
+  distance2 = duration2*0.034/2;
 }
 
