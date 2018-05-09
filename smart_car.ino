@@ -5,6 +5,21 @@
  * Site: www.cristian-apps.xyz
  */
 
+/** Libs **/
+#include <TimedAction.h>
+
+/** Define functions **/
+void sensorFront();
+void sensorBack();
+void rotationForward();
+void rotationBack();
+
+/** Preapare the functions **/
+TimedAction actionSensorFront = TimedAction(1,sensorFront());
+TimedAction actionSensorBack = TimedAction(1,sensorBack());
+TimedAction actionMoveForward = TimedAction(1,rotationForward());
+TimedAction actionMoveBack = TimedAction(1,rotationBack());
+
 /** Diver N298 Pins **/
 const int ena = 10;
 const int in1 = 9;
@@ -61,37 +76,14 @@ void setup() {
 }
 
 void loop() {
-   if(moveForward){
-      getFrontDistance();
-      if(distance < 20){
-        moveForward = false;
-        moveBack = true;
-      }else{
-        digitalWrite(in3, LOW);
-        digitalWrite(in4, HIGH);
-        digitalWrite(in1, HIGH);
-        digitalWrite(in2, LOW);
-        analogWrite(ena, 100);
-        analogWrite(enb, 100);
-      }
-   }
-   if(moveBack){
-      getBackDistance();
-      if(distance2 < 20){
-        moveForward = true;
-        moveBack = false;
-      }else{
-        digitalWrite(in3, HIGH);
-        digitalWrite(in4, LOW);
-        digitalWrite(in1, LOW);
-        digitalWrite(in2, HIGH);
-        analogWrite(ena, 100);
-        analogWrite(enb, 100);
-      }
-   }
+   actionSensorFront.check();
+   actionSensorBack.check();
+   actionMoveForward.check();
+   actionMoveBack.check();
 }
 
-void getFrontDistance(){
+/** Read the front sensor **/
+void sensorFront(){
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
@@ -101,7 +93,8 @@ void getFrontDistance(){
   distance = duration*0.034/2;
 }
 
-void getBackDistance(){
+/** Read the back sensor **/
+void sensorBack(){
   digitalWrite(trigPin2, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin2, HIGH);
@@ -111,3 +104,32 @@ void getBackDistance(){
   distance2 = duration2*0.034/2;
 }
 
+/** The car will move forward **/
+void rotationForward(){
+  if(distance < 20 & moveForward == true){
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, HIGH);
+      digitalWrite(in1, HIGH);
+      digitalWrite(in2, LOW);
+      analogWrite(ena, 100);
+      analogWrite(enb, 100);
+   }else{
+      moveForward = false;
+      moveBack = true;
+   }
+}
+
+/** The car will move back **/
+void rotationBack(){
+  if(distance < 20 & moveBack == true){
+      digitalWrite(in3, HIGH);
+      digitalWrite(in4, LOW);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
+      analogWrite(ena, 100);
+      analogWrite(enb, 100);
+   }else{
+      moveForward = true;
+      moveBack = false;
+   }
+}
