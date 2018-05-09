@@ -78,8 +78,8 @@ void loop() {
    if(moveBack){
       getBackDistance();
       if(distance2 < 20){
-        moveForward = false;
-        moveBack = true;
+        moveForward = true;
+        moveBack = false;
       }else{
         digitalWrite(in3, HIGH);
         digitalWrite(in4, LOW);
