@@ -64,27 +64,29 @@ void loop() {
    if(moveForward){
       getFrontDistance();
       if(distance < 20){
+        moveForward = false;
+        moveBack = true;
+      }else{
         digitalWrite(in3, LOW);
         digitalWrite(in4, HIGH);
         digitalWrite(in1, HIGH);
         digitalWrite(in2, LOW);
         analogWrite(ena, 100);
         analogWrite(enb, 100);
-        moveForward = false;
-        moveBack = true;
       }
    }
    if(moveBack){
       getBackDistance();
       if(distance2 < 20){
+        moveForward = false;
+        moveBack = true;
+      }else{
         digitalWrite(in3, HIGH);
         digitalWrite(in4, LOW);
         digitalWrite(in1, LOW);
         digitalWrite(in2, HIGH);
         analogWrite(ena, 100);
         analogWrite(enb, 100);
-        moveForward = false;
-        moveBack = true;
       }
    }
 }
