@@ -3,133 +3,116 @@
  * Fainisi Marian Cristian 
  * Email: marian.fainisi@gmail.com
  * Site: www.cristian-apps.xyz
+ * Version 1.1
  */
 
-/** Libs **/
-#include <TimedAction.h>
 
-/** Define functions **/
-void sensorFront();
-void sensorBack();
-void rotationForward();
-void rotationBack();
+/** First motor **/
+const int ena = 7;
+const int en1 = 6;
+const int en2 = 5;
 
-/** Preapare the functions **/
-TimedAction actionSensorFront = TimedAction(1,sensorFront());
-TimedAction actionSensorBack = TimedAction(1,sensorBack());
-TimedAction actionMoveForward = TimedAction(1,rotationForward());
-TimedAction actionMoveBack = TimedAction(1,rotationBack());
+/** Secont motor **/
+const int enb = 4;
+const int en3 = 3;
+const int en4 = 2;
 
-/** Diver N298 Pins **/
-const int ena = 10;
-const int in1 = 9;
-const int in2 = 8;
-const int in3 = 7;
-const int in4 = 6;
-const int enb = 5;
-
-/** Ultrasonic sensors pins **/
-const int trigPin = 13;
-const int echoPin = 12;
-const int trigPin2 = 4;
-const int echoPin2 = 3;
+/** Ultrasonic sensors **/
+const int SignalFront = 13;
+const int SignalBack = 12;
 
 /** Variabiles **/
-long duration;
-long duration2;
-int distance;
-int distance2;
-
 boolean moveForward = true;
 boolean moveBack = false;
 
+/** Lights **/
+const int lightStop = 8;
+
+long durationFront;
+long durationBack;
+
+int distanceFront;
+int distanceBack;
+
 void setup() {
-  /** First motor **/
-  pinMode(ena, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
+  
+  pinMode(ena,OUTPUT);
+  pinMode(en1,OUTPUT);
+  pinMode(en2,OUTPUT);
 
-  /** Second motor **/
-  pinMode(enb, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
-
-  /** Front sensor **/
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
-
-  /** Back sensor **/
-  pinMode(trigPin2, OUTPUT);
-  pinMode(echoPin2, INPUT);
-
-  /** Set the default for first motor **/
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-
-  /** Set the default for second motor **/
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-
-  /** Begin the serial console **/
+  pinMode(enb,OUTPUT);
+  pinMode(en3,OUTPUT);
+  pinMode(en4,OUTPUT);
+  
+  pinMode(SignalFront, OUTPUT);
+  pinMode(SignalBack, OUTPUT);
+  
   Serial.begin(9600);
-
+  
 }
-
 void loop() {
-   actionSensorFront.check();
-   actionSensorBack.check();
-   actionMoveForward.check();
-   actionMoveBack.check();
-}
-
-/** Read the front sensor **/
-void sensorFront(){
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
-  distance = duration*0.034/2;
-}
-
-/** Read the back sensor **/
-void sensorBack(){
-  digitalWrite(trigPin2, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin2, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin2, LOW);
-  duration2 = pulseIn(echoPin2, HIGH);
-  distance2 = duration2*0.034/2;
-}
-
-/** The car will move forward **/
-void rotationForward(){
-  if(distance < 20 & moveForward == true){
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      analogWrite(ena, 100);
-      analogWrite(enb, 100);
-   }else{
+  if(moveForward){
+    
+    /** Stop the engines **/
+    digitalWrite(lightStop, LOW);
+    
+    /** Direction **/
+    digitalWrite(en1, HIGH);
+    digitalWrite(en2, LOW);
+    digitalWrite(en3, HIGH);
+    digitalWrite(en4, LOW);
+    
+    /** Speed **/
+    analogWrite(ena, 255);
+    analogWrite(enb, 255);
+    
+    /** Calculate the distance **/
+    digitalWrite(SignalFront, LOW);
+    delayMicroseconds(2);
+    digitalWrite(SignalFront, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(SignalFront, LOW);
+    pinMode(SignalFront, INPUT);
+    durationFront = pulseIn(SignalFront, HIGH);
+    distanceFront = durationFront * 0.034/2;
+    pinMode(SignalFront, OUTPUT);
+    
+    if(distanceFront < 40){
       moveForward = false;
       moveBack = true;
-   }
-}
-
-/** The car will move back **/
-void rotationBack(){
-  if(distance < 20 & moveBack == true){
-      digitalWrite(in3, HIGH);
-      digitalWrite(in4, LOW);
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
-      analogWrite(ena, 100);
-      analogWrite(enb, 100);
-   }else{
+    }
+  }
+  
+  if(moveBack){
+    
+    /** Stop the engines **/
+    digitalWrite(lightStop, HIGH);
+    
+    /** Direction **/
+    digitalWrite(en1, LOW);
+    digitalWrite(en2, HIGH);
+    digitalWrite(en3, LOW);
+    digitalWrite(en4, HIGH);
+    
+    /** Speed **/
+    analogWrite(ena, 255);
+    analogWrite(enb, 255);
+    
+    /** Calculate the distance **/
+    digitalWrite(SignalBack, LOW);
+  	delayMicroseconds(2);
+  	digitalWrite(SignalBack, HIGH);
+  	delayMicroseconds(10);
+  	digitalWrite(SignalBack, LOW);
+  	pinMode(SignalFront, INPUT);
+  	durationBack = pulseIn(SignalBack, HIGH);
+  	distanceBack = durationBack * 0.034/2;
+  	pinMode(SignalBack, OUTPUT);
+    
+    if(durationBack < 40){
       moveForward = true;
       moveBack = false;
-   }
+    }
+  }
+  
 }
